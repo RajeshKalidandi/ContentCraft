@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApp } from 'firebase/app';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
@@ -13,7 +13,20 @@ const firebaseConfig = {
   databaseURL: `https://${import.meta.env.VITE_FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`
 };
 
-const app = initializeApp(firebaseConfig);
+let firebaseApp;
 
-export const auth = getAuth(app);
-export const database = getDatabase(app);
+try {
+  firebaseApp = getApp();
+} catch {
+  firebaseApp = initializeApp(firebaseConfig);
+}
+
+export const auth = getAuth(firebaseApp);
+
+// Initialize persistence synchronously to avoid race conditions
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Persistence error:", error);
+});
+
+export const database = getDatabase(firebaseApp);
+export default firebaseApp;

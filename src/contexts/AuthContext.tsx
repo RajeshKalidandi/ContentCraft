@@ -29,23 +29,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function signup(email: string, password: string) {
-    return createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      return result;
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      throw error;
+    }
   }
 
   async function login(email: string, password: string) {
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      return result;
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw error;
+    }
   }
 
   async function logout() {
-    return signOut(auth);
+    try {
+      await signOut(auth);
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      throw error;
+    }
   }
 
   async function resetPassword(email: string) {
-    return sendPasswordResetEmail(auth, email);
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
   }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user);
       setCurrentUser(user);
       setLoading(false);
     });
